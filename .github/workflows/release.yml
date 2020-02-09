@@ -69,6 +69,8 @@ jobs:
           yarn --cwd assets deploy
           mix phx.digest
           mix release
+        env:
+          MIX_ENV: prod
 
       - name: Publish release
         uses: fnkr/github-action-ghr@v1
