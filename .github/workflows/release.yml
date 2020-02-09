@@ -1,0 +1,85 @@
+name: Create and publish release
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    name: OTP ${{ matrix.otp }} | Elixir ${{ matrix.elixir }} | Node ${{ matrix.node }} | OS ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04]
+        otp: [22.2.4]
+        elixir: [1.10.0]
+        node: [12.x]
+
+    services:
+      db:
+        image: postgres:11
+        ports: ['5432:5432']
+        options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: phoenixcicd_dev
+
+    steps:
+      - uses: actions/checkout@v1.0.0
+
+      - uses: actions/cache@v1
+        with:
+          path: deps
+          key: dependencies-${{ hashFiles('mix.lock') }}
+
+      - uses: actions/cache@v1
+        with:
+          path: _build
+          key: build-${{ hashFiles('mix.lock') }}
+
+      - uses: actions/setup-elixir@v1.0.0
+        with:
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+          yarn --cwd assets install
+      - name: Run tests
+        run: |
+          mix compile --warnings-as-errors
+          mix format --check-formatted
+          mix test
+        env:
+          MIX_ENV: test
+
+      - name: Prepare release
+        run: |
+          mix compile
+          yarn --cwd assets deploy
+          mix phx.digest
+          mix release
+
+      - name: Publish release
+        uses: fnkr/github-action-ghr@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PATH: _build/prod/rel
+          RELEASE_PATH: _build/prod/rel
+          GHR_PATH: _build/prod/rel
+          TAG: ${GITHUB_REF#refs/tags/}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
