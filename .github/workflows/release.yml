@@ -64,14 +64,15 @@ jobs:
           MIX_ENV: test
 
       - name: Prepare release
-        run: |
-          MIX_ENV=prod mix compile
-          yarn --cwd assets deploy
-          MIX_ENV=prod mix phx.digest
-          MIX_ENV mix release
         env:
+          MIX_ENV: prod
           SECRET_KEY_BASE: ${{ secrets.KEY_BASE }}
           DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:${{ job.services.db.ports['5432'] }}/phoenixcicd_dev"
+        run: |
+          mix compile
+          yarn --cwd assets deploy
+          mix phx.digest
+          mix release
 
       - name: Publish release
         uses: fnkr/github-action-ghr@v1
