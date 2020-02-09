@@ -1,6 +1,7 @@
 ![CI](https://github.com/flrnglbd/phoenix-cicd/workflows/CI/badge.svg)
+![Create and publish release](https://github.com/flrnglbd/phoenix-cicd/workflows/Create%20and%20publish%20release/badge.svg)
 ![Application Test and Deploy](https://github.com/flrnglbd/phoenix-cicd/workflows/Application%20Test%20and%20Deploy/badge.svg?branch=master)
-![Application Test and Deploy](https://github.com/flrnglbd/phoenix-cicd/workflows/Application%20Test%20and%20Deploy/badge.svg)
+
 # Phoenixcicd
 
 To start your Phoenix server:
