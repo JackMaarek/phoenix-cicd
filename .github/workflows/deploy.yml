@@ -39,24 +39,24 @@ jobs:
       - run: mix test
 
   deploy:
-    env:
-      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
     runs-on: ubuntu-latest
-
-    needs: test
-
-    steps:
-      - uses: actions/checkout@v1.0.0
-      - run: |+
-          cat >~/.netrc <<EOF
-          machine api.heroku.com
-              login $HEROKU_EMAIL
-              password $HEROKU_API_KEY
-          machine git.heroku.com
-              login $HEROKU_EMAIL
-              password $HEROKU_API_KEY
-          EOF
-      - run: heroku git:remote -a $(basename ${{ github.repository }})
-      - run: git push heroku HEAD:refs/heads/master
-      - run: heroku run "POOL_SIZE=2 mix ecto.migrate"
+    step:
+    - uses: actions/checkout@v1.0.0
+    - name: login
+      uses: actions/heroku@master
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      with:
+        args: container:login
+    - name: push
+      uses: actions/heroku@master
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      with:
+        args: container:push -a ${{ github.repository }} web
+    - name: release
+      uses: actions/heroku@master
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      with:
+        args: container:release -a ${{ github.repository }} web
