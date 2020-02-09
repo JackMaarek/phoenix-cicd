@@ -16,6 +16,7 @@ if System.get_env("GITHUB_ACTIONS") do
     username: "postgres",
     password: "postgres"
 end
+
 # you can enable the server option below.
 config :phoenixcicd, PhoenixcicdWeb.Endpoint,
   http: [port: 4002],
