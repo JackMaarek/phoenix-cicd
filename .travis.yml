@@ -1,16 +1,15 @@
 language: elixir
-
 elixir:
-      - 1.9.4
-
+    - 1.6.5
 addons:
-    postgresql: '12'
+    apt:
+        update: true
 
-service:
-    - postgresql
+script:
+    - mix compile --warnings-as-errors
+    - mix credo --strict
+    - mix coveralls.travis
 
-otp_release:
-      - 22.2.4:
-      - MIX_ENV=test
-
-script: mix coveralls
+after_script:
+    - mix deps.get --only docs
+    - MIX_ENV=docs mix inch.report
