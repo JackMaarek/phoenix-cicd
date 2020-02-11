@@ -3,6 +3,15 @@ language: elixir
 elixir:
       - 1.9.4
 
+addons:
+    postgresql: '12'
+
+service:
+    - postgresql
+
+before script:
+    - psql -c 'create database rankings_test;' -U postgres
+
 otp_release:
       - 22.2.4:
       - MIX_ENV=test
