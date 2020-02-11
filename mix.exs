@@ -51,7 +51,8 @@ defmodule Phoenixcicd.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:distillery, "~> 2.1"},
-      {:excoveralls, "~> 0.12.2", only: :test}
+      {:excoveralls, "~> 0.12.2", only: :test},
+      {:credo, "~> 1.2", only: [:dev, :test], runtime: false}
     ]
   end
 
